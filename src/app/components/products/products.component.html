@@ -1,0 +1,470 @@
+<app-breadcrumb [pageName]="'Products'" [icon]="'box'" />
+
+<!-- Top Bar -->
+<div class="page-top-main">
+    <div class="page-top-search-main d-flex gap-2 flex-wrap">
+        <input type="text" class="form-control" style="max-width:220px" placeholder="Search products..."
+            [(ngModel)]="searchTxt" (keyup.enter)="filterData()" />
+        <select class="form-select" style="max-width:180px" [(ngModel)]="filterCategoryId" (ngModelChange)="filterData()">
+            <option [ngValue]="null">All Categories</option>
+            <option *ngFor="let c of allCategories" [ngValue]="c.id">{{c.name}}</option>
+        </select>
+        <button class="square-btn site-btn primary-color" (click)="filterData()" [ngbTooltip]="'Search'">
+            <span><i class="fa-light fa-magnifying-glass"></i></span>
+        </button>
+        <button class="site-btn grey-color" (click)="clearFilters()"
+            *ngIf="filterCategoryId || searchTxt">
+            <span class="site-btn-icon"><span><i class="fa-light fa-xmark"></i></span></span>
+            Clear
+        </button>
+    </div>
+    <div class="page-top-btns-main d-flex justify-content-end flex-wrap gap-1">
+        <button class="site-btn grey-color" (click)="exportCSV()" [disabled]="isExporting">
+            <div class="site-btn-icon">
+                <span>
+                    <i *ngIf="!isExporting" class="fa-light fa-file-export"></i>
+                    <i *ngIf="isExporting" class="fa-light fa-spinner-third fa-spin"></i>
+                </span>
+            </div>
+            {{ isExporting ? 'Exporting...' : 'Export CSV' }}
+        </button>
+        <button class="site-btn grey-color" (click)="triggerImport()" [disabled]="isImporting">
+            <div class="site-btn-icon">
+                <span>
+                    <i *ngIf="!isImporting" class="fa-light fa-file-import"></i>
+                    <i *ngIf="isImporting" class="fa-light fa-spinner-third fa-spin"></i>
+                </span>
+            </div>
+            {{ isImporting ? 'Importing...' : 'Import CSV' }}
+        </button>
+        <input #csvFileInput type="file" accept=".csv,text/csv" class="d-none" (change)="onImportFileSelected($event)" />
+        <button class="site-btn dark-color ms-1" (click)="goToAdd()">
+            <div class="site-btn-icon"><span><i class="fa-light fa-plus"></i></span></div>
+            Add Product
+        </button>
+    </div>
+</div>
+
+<!-- Table -->
+@if((dataList.length > 0 || !isDataLoaded) && !isTechnicalIssue) {
+<div class="page-table-main">
+    @if(isDataLoaded) {
+    <div class="table-responsive">
+        <table class="table table-bordered text-nowrap mb-0">
+            <thead>
+                <tr>
+                    <th class="sr-th">Sr No.</th>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>SKU</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Rating</th>
+                    <th>Variants</th>
+                    <th>Status</th>
+                    <th>Featured</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(item of dataList | paginate: { itemsPerPage: limit, currentPage: page, totalItems: totalCount };
+                track item; let i = $index) {
+                <tr>
+                    <td class="sr-no-td">{{ (page - 1) * limit + (i + 1) }}</td>
+
+                    <!-- Image -->
+                    <td>
+                        <div class="prod-img-td">
+                            @if(getFirstImage(item.images)) {
+                            <img [src]="getFirstImage(item.images)" [alt]="item.name"
+                                (click)="sharedservice.viewImage(getFirstImage(item.images))" />
+                            } @else {
+                            <div class="prod-img-placeholder">
+                                <span><i class="fa-light fa-image"></i></span>
+                            </div>
+                            }
+                            @if(item.images?.length > 1) {
+                            <span class="prod-img-count">+{{item.images.length - 1}}</span>
+                            }
+                        </div>
+                    </td>
+
+                    <!-- Name + Slug -->
+                    <td>
+                        <div class="prod-name-cell">
+                            <div class="prod-name">{{item.name}}</div>
+                            <div class="prod-slug">/product/{{item.slug}}</div>
+                        </div>
+                    </td>
+
+                    <!-- SKU -->
+                    <td>
+                        @if(item.sku) {
+                        <span class="prod-sku-badge">{{item.sku}}</span>
+                        } @else {
+                        <span class="text-muted" style="font-size:11px">—</span>
+                        }
+                    </td>
+
+                    <!-- Category -->
+                    <td>
+                        @if(item.categoryName) {
+                        <!-- <span class="status-table blue"> -->
+                            <span class="status-icon"><i class="fa-light fa-folder"></i></span>
+                            {{item.categoryName}}
+                        <!-- </span> -->
+                        } @else {
+                        <span class="text-muted" style="font-size:12px">—</span>
+                        }
+                    </td>
+
+                    <!-- Price -->
+                    <td>
+                        <div class="prod-price-cell">
+                            @if(item.salePrice) {
+                            <span class="prod-sale-price">{{sharedservice.currency}}{{item.salePrice | number:'1.2-2'}}</span>
+                            <span class="prod-orig-price strikethrough">{{sharedservice.currency}}{{item.price | number:'1.2-2'}}</span>
+                            } @else {
+                            <span class="prod-orig-price">{{sharedservice.currency}}{{item.price | number:'1.2-2'}}</span>
+                            }
+                        </div>
+                    </td>
+
+                    <!-- Rating -->
+                    <td>
+                        <div class="prod-rating-cell">
+                            @if(item.reviewCount > 0) {
+                            <span class="prod-stars">
+                                @for(s of [1,2,3,4,5]; track s) {
+                                <i class="fa-solid fa-star" [style.color]="s <= item.avgRating ? '#f59e0b' : '#e5e7eb'" style="font-size:10px"></i>
+                                }
+                            </span>
+                            <span class="prod-rating-val">{{item.avgRating | number:'1.1-1'}}</span>
+                            <span class="prod-review-count">({{item.reviewCount}})</span>
+                            } @else {
+                            <span class="text-muted" style="font-size:11px">No reviews</span>
+                            }
+                        </div>
+                    </td>
+
+                    <!-- Variants -->
+                    <td>
+                        @if(item.variants?.length > 0) {
+                        <div class="prod-variants-cell">
+                            @for(v of item.variants.slice(0,2); track v) {
+                            <span class="prod-variant-chip">
+                                {{v.name}}: {{v.options?.length || 0}}
+                            </span>
+                            }
+                            @if(item.variants.length > 2) {
+                            <span class="prod-variant-chip more">+{{item.variants.length - 2}} more</span>
+                            }
+                        </div>
+                        } @else {
+                        <span class="text-muted" style="font-size:11px">No variants</span>
+                        }
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                        <div class="status-td">
+                            <span class="status-table"
+                                (click)="updateStatus(!item.isActive, item.id)"
+                                [ngClass]="item.isActive ? 'green' : 'yellow'"
+                                [ngbTooltip]="'Click to toggle status'">
+                                <span class="status-icon">
+                                    <i [class]="item.isActive ? 'fa-light fa-circle-check' : 'fa-light fa-circle-pause'"></i>
+                                </span>
+                                {{ item.isActive ? 'Active' : 'Inactive' }}
+                            </span>
+                        </div>
+                    </td>
+
+                    <!-- Featured -->
+                    <td>
+                        <div class="status-td">
+                            <span class="status-table"
+                                (click)="updateFeatured(!item.isFeatured, item.id)"
+                                [ngClass]="item.isFeatured ? 'yellow' : ''"
+                                [ngbTooltip]="'Click to toggle featured'">
+                                <span class="status-icon">
+                                    <i [class]="item.isFeatured ? 'fa-solid fa-star' : 'fa-light fa-star'"></i>
+                                </span>
+                                {{ item.isFeatured ? 'Featured' : 'Normal' }}
+                            </span>
+                        </div>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <div class="table-btns-main">
+                            <button [ngbTooltip]="'Edit Product'" class="table-single-btn primary"
+                                (click)="goToEdit(item.id)">
+                                <span class="icon"><i class="fa-light fa-pen-to-square"></i></span>
+                                <span class="label">Edit</span>
+                            </button>
+                            <button [ngbTooltip]="'Manage Reviews'" class="table-single-btn yellow"
+                                (click)="openReviews(item)">
+                                <span class="icon"><i class="fa-light fa-star"></i></span>
+                                <span class="label">Reviews</span>
+                            </button>
+                            <button [ngbTooltip]="'Duplicate Product'" class="table-single-btn blue"
+                                (click)="duplicateProduct(item.id)">
+                                <span class="icon"><i class="fa-light fa-copy"></i></span>
+                                <span class="label">Copy</span>
+                            </button>
+                            <button [ngbTooltip]="'Delete Product'" class="table-single-btn red"
+                                (click)="deleteData(item.id)">
+                                <span class="icon"><i class="fa-light fa-trash-can"></i></span>
+                                <span class="label">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="main-pagination">
+        <div class="data-limit-main">
+            <select class="form-select" [(ngModel)]="limit" (ngModelChange)="page = 1; getDataList()">
+                <option [value]="10">10 / page</option>
+                <option [value]="20">20 / page</option>
+                <option [value]="50">50 / page</option>
+                <option [value]="100">100 / page</option>
+            </select>
+        </div>
+        <div class="pagination-inner">
+            <pagination-controls (pageChange)="page = $event; getDataList()" />
+        </div>
+    </div>
+
+    } @else {
+    <app-table-view-skeleton></app-table-view-skeleton>
+    }
+</div>
+}
+
+<!-- ═══════════════════════ REVIEWS MODAL ═══════════════════════ -->
+<ng-template #reviewModal let-modal>
+    <div class="modal-header" style="border-bottom:1px solid #e5e7eb;padding:18px 22px 14px">
+        <div>
+            <h5 class="modal-title mb-0" style="font-weight:700;font-size:16px">
+                <i class="fa-light fa-star me-2" style="color:#f59e0b"></i>
+                Reviews — <span style="color:#6366f1">{{reviewProduct?.name}}</span>
+            </h5>
+            <div style="font-size:11px;color:#94a3b8;margin-top:3px">Manage customer reviews for this product</div>
+        </div>
+        <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+    </div>
+
+    <div class="modal-body" style="padding:18px 22px;max-height:70vh;overflow-y:auto">
+
+        <!-- ADD / EDIT FORM -->
+        <div class="rev-form-box" style="background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:18px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:12px;color:#374151">
+                <i class="fa-light fa-{{reviewEditMode ? 'pen-to-square' : 'plus-circle'}} me-1"></i>
+                {{reviewEditMode ? 'Edit Review' : 'Add New Review'}}
+            </div>
+
+            <!-- Reviewer Name -->
+            <div class="mb-2">
+                <label class="form-label" style="font-size:12px;font-weight:600;color:#374151">Customer Name *</label>
+                <input type="text" class="form-control form-control-sm" placeholder="e.g. Rahul Sharma"
+                    [(ngModel)]="reviewForm.reviewerName" maxlength="255" />
+            </div>
+
+            <!-- Rating Stars -->
+            <div class="mb-2">
+                <label class="form-label" style="font-size:12px;font-weight:600;color:#374151">Rating *</label>
+                <div class="d-flex gap-1 align-items-center">
+                    <span *ngFor="let s of starRange" (click)="reviewForm.rating = s"
+                        style="cursor:pointer;font-size:20px;line-height:1"
+                        [style.color]="s <= reviewForm.rating ? '#f59e0b' : '#d1d5db'">&#9733;</span>
+                    <span style="font-size:12px;color:#6b7280;margin-left:6px">{{reviewForm.rating}} / 5</span>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div class="mb-2">
+                <label class="form-label" style="font-size:12px;font-weight:600;color:#374151">Review Title</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Short title for the review"
+                    [(ngModel)]="reviewForm.title" maxlength="500" />
+            </div>
+
+            <!-- Body / Content -->
+            <div class="mb-2">
+                <label class="form-label" style="font-size:12px;font-weight:600;color:#374151">Review Content</label>
+                <textarea class="form-control form-control-sm" rows="3" placeholder="Customer's review text..."
+                    [(ngModel)]="reviewForm.body"></textarea>
+            </div>
+
+            <!-- Review Image URL -->
+            <div class="mb-3">
+                <label class="form-label" style="font-size:12px;font-weight:600;color:#374151">Review Image URL <span style="color:#94a3b8;font-weight:400">(optional)</span></label>
+                <input type="text" class="form-control form-control-sm" placeholder="https://..."
+                    [(ngModel)]="reviewForm.reviewImage" />
+                <div *ngIf="reviewForm.reviewImage" class="mt-2">
+                    <img [src]="reviewForm.reviewImage" style="height:56px;width:56px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb"
+                        onerror="this.style.display='none'" />
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-2">
+                <button class="site-btn primary-color" style="padding:6px 18px;font-size:13px" (click)="saveReview()">
+                    <i class="fa-light fa-{{reviewEditMode ? 'floppy-disk' : 'plus'}} me-1"></i>
+                    {{reviewEditMode ? 'Update Review' : 'Add Review'}}
+                </button>
+                <button *ngIf="reviewEditMode" class="site-btn grey-color" style="padding:6px 14px;font-size:13px" (click)="cancelForm()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <!-- BULK CSV IMPORT -->
+        <div style="background:#fffbeb;border:1.5px dashed #f59e0b;border-radius:10px;padding:14px 16px;margin-bottom:18px">
+            <div style="font-weight:700;font-size:13px;color:#92400e;margin-bottom:6px">
+                <i class="fa-light fa-file-csv me-1"></i> Bulk add via CSV
+            </div>
+            <div style="font-size:11px;color:#a16207;margin-bottom:10px;line-height:1.45">
+                Columns: <code>reviewerName,rating,title,body,reviewImage</code>
+                (aliases OK: name, stars, content, image). Rating 1–5.
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button type="button" class="site-btn grey-color" style="padding:6px 12px;font-size:12px"
+                    (click)="downloadReviewCsvSample()">
+                    <i class="fa-light fa-download me-1"></i> Sample CSV
+                </button>
+                <button type="button" class="site-btn primary-color" style="padding:6px 14px;font-size:12px"
+                    [disabled]="reviewBulkImporting" (click)="triggerReviewCsvPick()">
+                    <i class="fa-light fa-{{reviewBulkImporting ? 'spinner-third fa-spin' : 'upload'}} me-1"></i>
+                    {{ reviewBulkImporting ? 'Importing…' : 'Upload CSV' }}
+                </button>
+                <input #reviewCsvInput type="file" accept=".csv,text/csv" hidden (change)="onReviewCsvSelected($event)" />
+            </div>
+        </div>
+
+        <!-- REVIEWS LIST -->
+        <div style="font-weight:700;font-size:13px;color:#374151;margin-bottom:10px">
+            <i class="fa-light fa-list me-1"></i> Existing Reviews
+            <span style="font-weight:400;color:#94a3b8;font-size:12px;margin-left:4px">({{reviewList.length}})</span>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="reviewsLoading" style="text-align:center;padding:24px;color:#94a3b8">
+            <i class="fa-light fa-spinner-third fa-spin fa-lg"></i>
+        </div>
+
+        <!-- Empty -->
+        <div *ngIf="!reviewsLoading && reviewList.length === 0"
+            style="text-align:center;padding:24px;color:#94a3b8;font-size:13px">
+            <i class="fa-light fa-star fa-2x mb-2 d-block"></i>
+            No reviews yet. Add the first one above!
+        </div>
+
+        <!-- Review Cards -->
+        <div *ngFor="let r of reviewList" class="rev-card"
+            style="border:1.5px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin-bottom:10px;background:#fff;position:relative">
+
+            <!-- Status badge -->
+            <span style="position:absolute;top:10px;right:10px;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600"
+                [style.background]="r.isActive ? '#d1fae5' : '#fee2e2'"
+                [style.color]="r.isActive ? '#059669' : '#dc2626'">
+                {{r.isActive ? 'Active' : 'Hidden'}}
+            </span>
+
+            <div class="d-flex gap-2 align-items-start">
+                <!-- Review Image -->
+                <div *ngIf="r.reviewImage" style="flex-shrink:0">
+                    <img [src]="r.reviewImage" style="width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb"
+                        onerror="this.style.display='none'" />
+                </div>
+                <div *ngIf="!r.reviewImage"
+                    style="flex-shrink:0;width:52px;height:52px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center">
+                    <i class="fa-light fa-user" style="color:#94a3b8;font-size:20px"></i>
+                </div>
+
+                <div style="flex:1;min-width:0">
+                    <!-- Name + Stars -->
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span style="font-weight:700;font-size:13px">{{r.reviewerName}}</span>
+                        <span style="font-size:13px">
+                            <span *ngFor="let s of starRange"
+                                [style.color]="s <= r.rating ? '#f59e0b' : '#d1d5db'">&#9733;</span>
+                            <span style="font-size:11px;color:#6b7280;margin-left:4px">{{r.rating}}/5</span>
+                        </span>
+                    </div>
+
+                    <!-- Title -->
+                    <div *ngIf="r.title" style="font-weight:600;font-size:12px;color:#374151;margin-top:4px">{{r.title}}</div>
+
+                    <!-- Body -->
+                    <div *ngIf="r.body" style="font-size:12px;color:#6b7280;margin-top:3px;line-height:1.5">{{r.body}}</div>
+
+                    <!-- Date -->
+                    <div style="font-size:10px;color:#94a3b8;margin-top:6px">
+                        {{r.created_at | date:'dd MMM yyyy, hh:mm a'}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-1 mt-2 flex-wrap">
+                <button class="table-single-btn primary" style="padding:4px 10px;font-size:11px"
+                    (click)="startEdit(r)">
+                    <span class="icon"><i class="fa-light fa-pen-to-square"></i></span>
+                    <span class="label">Edit</span>
+                </button>
+                <button class="table-single-btn" style="padding:4px 10px;font-size:11px"
+                    [style.background]="r.isActive ? '#fef9c3' : '#dcfce7'"
+                    [style.color]="r.isActive ? '#854d0e' : '#166534'"
+                    (click)="toggleReviewStatus(r)">
+                    <span class="icon"><i class="fa-light fa-{{r.isActive ? 'eye-slash' : 'eye'}}"></i></span>
+                    <span class="label">{{r.isActive ? 'Hide' : 'Show'}}</span>
+                </button>
+                <button class="table-single-btn red" style="padding:4px 10px;font-size:11px"
+                    (click)="deleteReview(r.id)">
+                    <span class="icon"><i class="fa-light fa-trash-can"></i></span>
+                    <span class="label">Delete</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer" style="border-top:1px solid #e5e7eb;padding:10px 22px">
+        <button class="site-btn grey-color" style="font-size:13px;padding:6px 18px" (click)="modal.dismiss()">Close</button>
+    </div>
+</ng-template>
+<!-- ═══════════════════════ /REVIEWS MODAL ══════════════════════ -->
+
+<!-- No Data / Error -->
+@if((dataList.length === 0 && isDataLoaded) || isTechnicalIssue) {
+<div class="no-data-found-main">
+    <div class="no-data-found-img">
+        @if(isTechnicalIssue) {
+        <img src="../../../assets/img/technical-issue.png" alt="Technical Issue">
+        } @else {
+        <img src="../../../assets/img/no-data.png" alt="No Data">
+        }
+    </div>
+    @if(isTechnicalIssue) {
+    <div class="no-data-found-ttl">Technical Issue Found</div>
+    <div class="no-data-found-ctx">Please try again later.</div>
+    <button class="site-btn primary-color" routerLink="/dashboard">
+        <div class="site-btn-icon"><span><i class="fa-light fa-house"></i></span></div>
+        Go to Dashboard
+    </button>
+    } @else {
+    <div class="no-data-found-ttl">No Products Found!</div>
+    <div class="no-data-found-ctx">Add your first product by clicking below.</div>
+    <button class="site-btn primary-color" (click)="goToAdd()">
+        <div class="site-btn-icon"><span><i class="fa-light fa-plus"></i></span></div>
+        Add Product
+    </button>
+    }
+</div>
+}
