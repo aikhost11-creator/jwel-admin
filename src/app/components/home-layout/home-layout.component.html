@@ -1,0 +1,54 @@
+<app-breadcrumb [pageName]="'Home Page'" [icon]="'house'" />
+
+<div class="home-layout-note">
+    <i class="fa-light fa-circle-info"></i>
+    The sliding banner at the very top is in <strong>Home Banners</strong>. Upload 2000 × 800 images there. You can add as many as you want and they will slide. Everything below that banner is edited on this page.
+</div>
+
+<app-box-view-skeleton *ngIf="isLoading"></app-box-view-skeleton>
+
+<div class="home-layout" *ngIf="!isLoading">
+    <section class="layout-group" *ngFor="let group of groups">
+        <div class="layout-group-head">
+            <h2>{{ group.title }}</h2>
+            <p>{{ group.note }}</p>
+        </div>
+        <div class="layout-grid">
+            <article class="layout-card" *ngFor="let item of group.items">
+                <div class="layout-card-head">
+                    <strong>{{ item.name }}</strong>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" [(ngModel)]="slot(item.key).isActive" />
+                        <span class="toggle-label"></span>
+                    </label>
+                </div>
+
+                <div class="layout-img" *ngIf="item.image">
+                    <div class="layout-img-preview" *ngIf="slot(item.key).image">
+                        <img [src]="slot(item.key).image" alt="" (click)="sharedService.viewImage(slot(item.key).image)" />
+                        <div class="layout-img-actions">
+                            <button type="button" (click)="uploadImage(item.key)">Change</button>
+                            <button type="button" class="danger" (click)="removeImage(item.key)">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="layout-upload" *ngIf="!slot(item.key).image" (click)="uploadImage(item.key)">
+                        <i class="fa-light fa-cloud-arrow-up"></i>
+                        Upload image
+                    </button>
+                </div>
+
+                <div class="form-inp-main" *ngIf="item.label">
+                    <label class="form-label">Text</label>
+                    <input class="form-control" type="text" [(ngModel)]="slot(item.key).label" placeholder="Leave blank if you have not decided" />
+                </div>
+                <div class="form-inp-main" *ngIf="item.link">
+                    <label class="form-label">Link</label>
+                    <input class="form-control" type="text" [(ngModel)]="slot(item.key).link" placeholder="/shop or https://..." />
+                </div>
+                <button type="button" class="site-btn dark-color layout-save" [disabled]="savingKey === item.key" (click)="save(item.key)">
+                    {{ savingKey === item.key ? 'Saving...' : 'Save' }}
+                </button>
+            </article>
+        </div>
+    </section>
+</div>

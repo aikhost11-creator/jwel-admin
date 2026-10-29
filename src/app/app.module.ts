@@ -35,6 +35,7 @@ import { ViewLocationComponent } from './shared/components/view-location/view-lo
 import { BtnLoaderComponent } from './shared/components/btn-loader/btn-loader.component';
 import { ConfigService } from './shared/services/config.service';
 import { HomeBannersComponent } from './components/home-banners/home-banners.component';
+import { HomeLayoutComponent } from './components/home-layout/home-layout.component';
 import { AddUpdateHomeBannersComponent } from './components/home-banners/add-update-home-banners/add-update-home-banners.component';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { AddUpdateCategoriesComponent } from './components/categories/add-update-categories/add-update-categories.component';
@@ -82,6 +83,7 @@ export function initAppConfig(cfg: ConfigService) {
     ViewLocationComponent,
     BtnLoaderComponent,
     HomeBannersComponent,
+    HomeLayoutComponent,
     AddUpdateHomeBannersComponent,
     CategoriesComponent,
     AddUpdateCategoriesComponent,

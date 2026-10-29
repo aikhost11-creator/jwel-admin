@@ -48,6 +48,11 @@ export class SidebarComponent {
           url: "/home-banners"
         },
         {
+          pagename: "Home Page",
+          icon: "house",
+          url: "/home-page"
+        },
+        {
           pagename: "Reels",
           icon: "clapperboard",
           url: "/reels"

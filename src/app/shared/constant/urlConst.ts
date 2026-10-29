@@ -28,6 +28,10 @@ export function rebuildUrlConstant() {
       updateUserStatus: environment.APIUrl + 'users/updateUserStatus/',
       deleteUser: environment.APIUrl + 'users/deleteUser/',
     },
+    HomeSlotAPI: {
+      getAll: environment.APIUrl + 'homeslot/getAll',
+      save: environment.APIUrl + 'homeslot/save/',
+    },
     HomeBannerAPI: {
       getAllByPage: environment.APIUrl + 'homebanner/getAllBannersByPage',
       create: environment.APIUrl + 'homebanner/createBanner',

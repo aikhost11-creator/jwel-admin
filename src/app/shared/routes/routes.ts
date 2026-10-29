@@ -3,6 +3,7 @@ import { DashboardComponent } from "../../components/dashboard/dashboard.compone
 import { UsersComponent } from "../../components/users/users.component";
 import { SiteConfigurationComponent } from "../../components/site-configuration/site-configuration.component";
 import { HomeBannersComponent } from "../../components/home-banners/home-banners.component";
+import { HomeLayoutComponent } from "../../components/home-layout/home-layout.component";
 import { CategoriesComponent } from "../../components/categories/categories.component";
 import { ProductsComponent } from "../../components/products/products.component";
 import { AddUpdateProductsComponent } from "../../components/products/add-update-products/add-update-products.component";
@@ -24,6 +25,7 @@ export const routing: Routes = [
     { path: 'customers', component: CustomersComponent },
     { path: 'site-configuration', component: SiteConfigurationComponent },
     { path: 'home-banners', component: HomeBannersComponent },
+    { path: 'home-page', component: HomeLayoutComponent },
     { path: 'reels', component: ReelsComponent },
     { path: 'categories', component: CategoriesComponent },
     { path: 'products', component: ProductsComponent },
