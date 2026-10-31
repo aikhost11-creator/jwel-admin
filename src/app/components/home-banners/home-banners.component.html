@@ -1,6 +1,6 @@
-<app-breadcrumb [pageName]="'Home Banners'" [icon]="'image'" />
+<app-breadcrumb *ngIf="!embedded" [pageName]="'Home Banners'" [icon]="'image'" />
 
-<div class="home-layout-note" style="display:flex;gap:10px;margin:0 0 14px;padding:12px 14px;background:#f7f4ef;border:1px solid #efe4cf;border-radius:8px;font-size:13px;">
+<div *ngIf="!embedded" class="home-layout-note" style="display:flex;gap:10px;margin:0 0 14px;padding:12px 14px;background:#f7f4ef;border:1px solid #efe4cf;border-radius:8px;font-size:13px;">
     <i class="fa-light fa-circle-info"></i>
     <span>These are the sliding banners at the top of the home page. Use <strong>2000 × 800</strong> images. Add as many as you want. Turn one off any time from Status.</span>
 </div>

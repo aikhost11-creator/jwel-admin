@@ -1,13 +1,54 @@
-<app-breadcrumb [pageName]="'Home Page'" [icon]="'house'" />
+<app-breadcrumb [pageName]="'Homepage'" [icon]="'house'" />
 
 <div class="home-layout-note">
     <i class="fa-light fa-circle-info"></i>
-    The sliding banner at the very top is in <strong>Home Banners</strong>. Upload 2000 × 800 images there. You can add as many as you want and they will slide. Everything below that banner is edited on this page.
+    <span>This page is the home screen. Change the sliding photos, the category tiles, and every block under them from here.</span>
 </div>
+
+<section class="layout-group">
+    <div class="layout-group-head">
+        <h2>Top slider</h2>
+        <p>These photos slide at the top. Desktop size 2000 × 800. For the phone, add another slide and set Device to Mobile — the phone banner is taller.</p>
+    </div>
+    <app-home-banners [embedded]="true"></app-home-banners>
+</section>
 
 <app-box-view-skeleton *ngIf="isLoading"></app-box-view-skeleton>
 
 <div class="home-layout" *ngIf="!isLoading">
+    <section class="layout-group">
+        <div class="layout-group-head">
+            <h2>Category tiles</h2>
+            <p>Square photos under the slider. On the phone they sit in two scrolling rows. Names are changed in Categories.</p>
+        </div>
+        <div class="layout-grid" *ngIf="rootCategories.length; else noCats">
+            <article class="layout-card" *ngFor="let cat of rootCategories">
+                <div class="layout-card-head">
+                    <strong>{{ cat.name }}</strong>
+                </div>
+                <div class="layout-img">
+                    <div class="layout-img-preview" *ngIf="cat.image">
+                        <img [src]="cat.image" alt="" (click)="sharedService.viewImage(cat.image)" />
+                        <div class="layout-img-actions">
+                            <button type="button" (click)="uploadCategoryImage(cat)">Change</button>
+                            <button type="button" class="danger" (click)="cat.image = ''">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="layout-upload" *ngIf="!cat.image" (click)="uploadCategoryImage(cat)">
+                        <i class="fa-light fa-cloud-arrow-up"></i>
+                        Upload image
+                    </button>
+                </div>
+                <button type="button" class="site-btn dark-color layout-save" [disabled]="savingCatId === cat.id" (click)="saveCategory(cat)">
+                    {{ savingCatId === cat.id ? 'Saving...' : 'Save' }}
+                </button>
+            </article>
+        </div>
+        <ng-template #noCats>
+            <p class="layout-empty">No categories yet. Add them in Categories, then their photo can be set here.</p>
+        </ng-template>
+    </section>
+
     <section class="layout-group" *ngFor="let group of groups">
         <div class="layout-group-head">
             <h2>{{ group.title }}</h2>

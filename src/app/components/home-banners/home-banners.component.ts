@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { SharedService } from '../../shared/services/shared.service';
 import { HomeBannersService } from './home-banners.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -11,6 +11,7 @@ import { DeleteConfirmationComponent } from '../../shared/components/delete-conf
     styleUrl: './home-banners.component.scss'
 })
 export class HomeBannersComponent implements OnInit {
+    @Input() embedded = false;
     dataList: any[] = [];
     searchTxt: string = '';
     page: number = 1;

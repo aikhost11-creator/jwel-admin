@@ -43,12 +43,7 @@ export class SidebarComponent {
       category: "Content",
       pages: [
         {
-          pagename: "Home Banners",
-          icon: "image",
-          url: "/home-banners"
-        },
-        {
-          pagename: "Home Page",
+          pagename: "Homepage",
           icon: "house",
           url: "/home-page"
         },
