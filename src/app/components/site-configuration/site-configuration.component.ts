@@ -41,13 +41,13 @@ export class SiteConfigurationComponent {
       this.siteConfig.linkedInURL = config.linkedInURL || '';
       this.siteConfig.currency = config.currency || '₹';
       this.siteConfig.deliveryCharge = config.deliveryCharge ?? 0;
-      this.siteConfig.primaryColor = config.primaryColor || '#1c1410';
-      this.siteConfig.secondaryColor = config.secondaryColor || '#3d2b1f';
-      this.siteConfig.accentColor = config.accentColor || '#c4a265';
-      this.siteConfig.backgroundColor = config.backgroundColor || '#faf7f2';
-      this.siteConfig.headingColor = config.headingColor || '#1c1410';
-      this.siteConfig.textColor = config.textColor || '#6b5e52';
-      this.siteConfig.headingFont = config.headingFont || 'Cormorant Garamond';
+      this.siteConfig.primaryColor = config.primaryColor || '#212326';
+      this.siteConfig.secondaryColor = config.secondaryColor || '#151618';
+      this.siteConfig.accentColor = config.accentColor || '#c9a24a';
+      this.siteConfig.backgroundColor = config.backgroundColor || '#ffffff';
+      this.siteConfig.headingColor = config.headingColor || '#212326';
+      this.siteConfig.textColor = config.textColor || '#212326';
+      this.siteConfig.headingFont = config.headingFont || 'Outfit';
       this.siteConfig.bodyFont = config.bodyFont || 'Outfit';
       this.siteConfig.marqueeItems = Array.isArray(config.marqueeItems) && config.marqueeItems.length
         ? config.marqueeItems

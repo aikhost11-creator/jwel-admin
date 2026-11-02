@@ -9,13 +9,13 @@ export class siteConfigReqModel{
     email : string;
     currency : string = '£';
     deliveryCharge : number = 20;
-    primaryColor : string = '#1c1410';
-    secondaryColor : string = '#3d2b1f';
-    accentColor : string = '#c4a265';
-    backgroundColor : string = '#faf7f2';
-    headingColor : string = '#1c1410';
-    textColor : string = '#6b5e52';
-    headingFont : string = 'Cormorant Garamond';
+    primaryColor : string = '#212326';
+    secondaryColor : string = '#151618';
+    accentColor : string = '#c9a24a';
+    backgroundColor : string = '#ffffff';
+    headingColor : string = '#212326';
+    textColor : string = '#212326';
+    headingFont : string = 'Outfit';
     bodyFont : string = 'Outfit';
     tagline : string = 'Fine jewellery, made to be lived in.';
     marqueeItems : { emoji: string; text: string }[] = [
