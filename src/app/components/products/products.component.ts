@@ -299,14 +299,35 @@ export class ProductsComponent implements OnInit {
     }
 
     triggerReviewCsvPick() {
-        this.reviewCsvInput?.nativeElement?.click();
+        // Prefer ViewChild; if modal template ref is unavailable, open a temp picker.
+        const el = this.reviewCsvInput?.nativeElement;
+        if (el) {
+            el.value = '';
+            el.click();
+            return;
+        }
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.csv,text/csv,application/vnd.ms-excel';
+        input.onchange = (ev) => this.onReviewCsvSelected(ev);
+        input.click();
     }
 
     onReviewCsvSelected(ev: Event) {
         const input = ev.target as HTMLInputElement;
         const file = input.files?.[0];
-        if (!file || !this.reviewProduct?.id) return;
-        if (!/\.csv$/i.test(file.name) && file.type !== 'text/csv') {
+        if (!file) return;
+        if (!this.reviewProduct?.id) {
+            this.sharedservice.showAlert(2, 'Open a product reviews panel first');
+            input.value = '';
+            return;
+        }
+        const okType = /\.csv$/i.test(file.name)
+            || file.type === 'text/csv'
+            || file.type === 'application/vnd.ms-excel'
+            || file.type === 'application/csv'
+            || !file.type;
+        if (!okType) {
             this.sharedservice.showAlert(2, 'Please select a .csv file');
             input.value = '';
             return;
@@ -316,16 +337,23 @@ export class ProductsComponent implements OnInit {
             next: (res: any) => {
                 this.reviewBulkImporting = false;
                 input.value = '';
-                const created = res.created ?? 0;
-                const skipped = res.skipped ?? 0;
-                this.sharedservice.showAlert(1, `Bulk done: ${created} added` + (skipped ? `, ${skipped} skipped` : ''));
+                const created = Number(res?.created ?? 0);
+                const skipped = Number(res?.skipped ?? 0);
+                const errSample = Array.isArray(res?.errors) && res.errors.length
+                    ? ` First error: ${res.errors[0].message || res.errors[0]}`
+                    : '';
+                if (created === 0 && skipped > 0) {
+                    this.sharedservice.showAlert(2, `No reviews added (${skipped} skipped).${errSample}`);
+                } else {
+                    this.sharedservice.showAlert(1, `Bulk done: ${created} added` + (skipped ? `, ${skipped} skipped` : ''));
+                }
                 this.loadReviews();
                 this.getDataList();
             },
             error: (err) => {
                 this.reviewBulkImporting = false;
                 input.value = '';
-                this.sharedservice.showAlert(2, err?.error?.error || 'Bulk import failed');
+                this.sharedservice.showAlert(2, err?.error?.error || err?.message || 'Bulk import failed');
             }
         });
     }

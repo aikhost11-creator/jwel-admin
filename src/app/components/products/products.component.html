@@ -339,11 +339,13 @@
                     <i class="fa-light fa-download me-1"></i> Sample CSV
                 </button>
                 <button type="button" class="site-btn primary-color" style="padding:6px 14px;font-size:12px"
-                    [disabled]="reviewBulkImporting" (click)="triggerReviewCsvPick()">
+                    [disabled]="reviewBulkImporting" (click)="reviewCsvInput.click()">
                     <i class="fa-light fa-{{reviewBulkImporting ? 'spinner-third fa-spin' : 'upload'}} me-1"></i>
                     {{ reviewBulkImporting ? 'Importing…' : 'Upload CSV' }}
                 </button>
-                <input #reviewCsvInput type="file" accept=".csv,text/csv" hidden (change)="onReviewCsvSelected($event)" />
+                <input #reviewCsvInput type="file" accept=".csv,text/csv,application/vnd.ms-excel"
+                    style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden"
+                    (change)="onReviewCsvSelected($event)" />
             </div>
         </div>
 
